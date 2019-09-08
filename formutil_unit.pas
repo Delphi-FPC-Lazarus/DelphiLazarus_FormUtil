@@ -33,9 +33,9 @@ Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes,
   IniFiles, Vcl.Forms;
 {$ENDIF}
-procedure ReadFormPos(konfig: string; Form: TForm;
+procedure ReadFormPos(const konfig: string; Form: TForm;
   defaultwidth, defaultheight: Integer; noFormSize: Boolean);
-procedure WriteFormPos(konfig: string; Form: TForm);
+procedure WriteFormPos(const konfig: string; Form: TForm);
 
 implementation
 
@@ -79,7 +79,7 @@ begin
 
 end;
 
-procedure ReadFormPos(konfig: string; Form: TForm;
+procedure ReadFormPos(const konfig: string; Form: TForm;
   defaultwidth, defaultheight: Integer; noFormSize: Boolean);
 var
   ini: TIniFile;
@@ -128,7 +128,7 @@ begin
   end;
 end;
 
-procedure WriteFormPos(konfig: string; Form: TForm);
+procedure WriteFormPos(const konfig: string; Form: TForm);
 var
   ini: TIniFile;
 begin
