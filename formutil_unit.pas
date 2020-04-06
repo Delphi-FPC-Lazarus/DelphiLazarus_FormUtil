@@ -45,6 +45,8 @@ const
   csMonitor: string = 'MONITOR';
   csTop: string = 'TOP';
   csLeft: string = 'LEFT';
+  csHeightScaled: string = 'HEIGHT_SCALED';
+  csWidthScaled: string = 'WIDTH_SCALED';
   csHeight: string = 'HEIGHT';
   csWidth: string = 'WIDTH';
   csDPI: string = 'DPI';
@@ -87,7 +89,7 @@ var
   ini: TIniFile;
   MonitorNum: Integer;
   Monitor: TMonitor;
-  Reset: Boolean;
+  // Reset: Boolean;
 begin
   ini := nil;
   MonitorNum := Screen.PrimaryMonitor.MonitorNum;
@@ -107,28 +109,34 @@ begin
     end
     else
     begin
-      Reset := (ini.ReadInteger(csForm + Form.Name, csDPI, Form.PixelsPerInch)
-        <> Form.PixelsPerInch) or
-        (ini.ReadBool(csForm + Form.Name, csScaled, Form.Scaled) <>
-        Form.Scaled);
+      // Reset := (ini.ReadInteger(csForm + Form.Name, csDPI, Form.PixelsPerInch) <> Form.PixelsPerInch);
+      // or (ini.ReadBool(csForm + Form.Name, csScaled, Form.Scaled) <> Form.Scaled);
 
-      if noFormSize or Reset then
+      if noFormSize then // or Reset then
       begin
         Form.Height := defaultheight;
         Form.Width := defaultwidth;
       end
       else
       begin
-        Form.Height := ini.ReadInteger(csForm + Form.Name, csHeight,
-          defaultheight);
-        Form.Width := ini.ReadInteger(csForm + Form.Name, csWidth,
-          defaultwidth);
+        if Form.Scaled then
+        begin
+          Form.Height := ini.ReadInteger(csForm + Form.Name, csHeightScaled,
+            trunc(defaultheight * Form.Monitor.PixelsPerInch / Form.PixelsPerInch));
+          Form.Width := ini.ReadInteger(csForm + Form.Name, csWidthScaled,
+            trunc(defaultwidth * Form.Monitor.PixelsPerInch / Form.PixelsPerInch));
+        end
+        else
+        begin
+          Form.Height := ini.ReadInteger(csForm + Form.Name, csHeight,
+            defaultheight);
+          Form.Width := ini.ReadInteger(csForm + Form.Name, csWidth,
+            defaultwidth);
+        end;
       end;
 
-      Form.Top := ini.ReadInteger(csForm + Form.Name, csTop,
-        Monitor.Top + Monitor.Height div 2 - Form.Height div 2);
-      Form.Left := ini.ReadInteger(csForm + Form.Name, csLeft,
-        Monitor.Left + Monitor.Width div 2 - Form.Width div 2);
+      Form.Top := ini.ReadInteger(csForm + Form.Name, csTop, 100);
+      Form.Left := ini.ReadInteger(csForm + Form.Name, csLeft, 100);
     end;
   finally
     FreeAndNil(ini);
@@ -148,8 +156,16 @@ begin
     ini.WriteInteger(csForm + Form.Name, csMonitor, Form.Monitor.MonitorNum);
     ini.WriteInteger(csForm + Form.Name, csTop, Form.Top);
     ini.WriteInteger(csForm + Form.Name, csLeft, Form.Left);
-    ini.WriteInteger(csForm + Form.Name, csHeight, Form.Height);
-    ini.WriteInteger(csForm + Form.Name, csWidth, Form.Width);
+    if Form.Scaled then
+    begin
+      ini.WriteInteger(csForm + Form.Name, csHeightScaled, Form.Height);
+      ini.WriteInteger(csForm + Form.Name, csWidthScaled, Form.Width);
+    end
+    else
+    begin
+      ini.WriteInteger(csForm + Form.Name, csHeight, Form.Height);
+      ini.WriteInteger(csForm + Form.Name, csWidth, Form.Width);
+    end;
     ini.WriteInteger(csForm + Form.Name, csDPI, Form.PixelsPerInch);
     ini.WriteBool(csForm + Form.Name, csScaled, Form.Scaled);
   finally
